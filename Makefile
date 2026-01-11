@@ -45,12 +45,10 @@ docker-push:
 # Install CRDs into the cluster
 install:
 	kubectl apply -f manifests/todolist-crd.yaml
-	kubectl apply -f manifests/todo-crd.yaml
 
 # Uninstall CRDs from the cluster
 uninstall:
 	kubectl delete -f manifests/todolist-crd.yaml
-	kubectl delete -f manifests/todo-crd.yaml
 
 # Deploy operator to the cluster
 deploy: install

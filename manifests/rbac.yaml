@@ -16,9 +16,6 @@ rules:
   - todolists
   - todolists/status
   - todolists/finalizers
-  - todos
-  - todos/status
-  - todos/finalizers
   verbs:
   - create
   - delete
@@ -60,6 +57,26 @@ rules:
   verbs:
   - create
   - patch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

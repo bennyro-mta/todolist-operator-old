@@ -1,6 +1,7 @@
 package v1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -9,6 +10,22 @@ import (
 type TodoListSpec struct {
 	// Owner prefix for resource names and USER environment variable
 	Owner string `json:"owner"`
+
+	// FrontendReplicas is the number of replicas for the frontend deployment
+	// +optional
+	// +kubebuilder:default=1
+	FrontendReplicas *int32 `json:"frontendReplicas,omitempty"`
+
+	// APIReplicas is the number of replicas for the API deployment
+	// +optional
+	// +kubebuilder:default=1
+	APIReplicas *int32 `json:"apiReplicas,omitempty"`
+
+	// ServiceType is the Kubernetes service type for both frontend and API services
+	// +optional
+	// +kubebuilder:default=ClusterIP
+	// +kubebuilder:validation:Enum=ClusterIP;NodePort;LoadBalancer
+	ServiceType *corev1.ServiceType `json:"serviceType,omitempty"`
 }
 
 // TodoListStatus defines the observed state of TodoList

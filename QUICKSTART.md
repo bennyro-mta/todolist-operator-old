@@ -14,7 +14,6 @@ This guide will help you quickly deploy and test the TodoList Operator.
 
 ```bash
 kubectl apply -f manifests/todolist-crd.yaml
-kubectl apply -f manifests/todo-crd.yaml
 ```
 
 ### Step 2: Build the Operator

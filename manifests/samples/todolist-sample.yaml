@@ -1,7 +1,10 @@
 apiVersion: todolist.example.com/v1
 kind: TodoList
 metadata:
-  name: demo-todolist
+  name: benny-todolist
   namespace: default
 spec:
-  owner: demo
+  owner: benny
+  frontendReplicas: 2
+  apiReplicas: 3
+  serviceType: LoadBalancer

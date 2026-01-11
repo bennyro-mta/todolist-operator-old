@@ -44,44 +44,55 @@ func (r *TodoListReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, err
 	}
 
-	if todoList.Status.Phase != "" && todoList.Status.Phase != "Pending" {
+	owner := todoList.Spec.Owner
+	if owner == "" {
+		logger.Info("TodoList spec.owner is empty, skipping reconciliation")
 		return ctrl.Result{}, nil
 	}
 
-	if todoList.Status.Phase == "" {
-		todoList.Status.Phase = "Pending"
-		if err := r.Status().Update(ctx, todoList); err != nil {
-			return ctrl.Result{}, err
-		}
-	}
-
-	owner := todoList.Spec.Owner
-
+	// Always reconcile resources
 	if err := r.reconcileSecret(ctx, todoList, owner); err != nil {
+		logger.Error(err, "failed to reconcile secret")
+		todoList.Status.Phase = "Failed"
+		_ = r.Status().Update(ctx, todoList)
 		return ctrl.Result{}, err
 	}
 	if err := r.reconcileConfigMaps(ctx, todoList, owner); err != nil {
+		logger.Error(err, "failed to reconcile configmaps")
+		todoList.Status.Phase = "Failed"
+		_ = r.Status().Update(ctx, todoList)
 		return ctrl.Result{}, err
 	}
 	if err := r.reconcileMariaDB(ctx, todoList, owner); err != nil {
+		logger.Error(err, "failed to reconcile mariadb")
+		todoList.Status.Phase = "Failed"
+		_ = r.Status().Update(ctx, todoList)
 		return ctrl.Result{}, err
 	}
 	if err := r.reconcileTodoAPI(ctx, todoList, owner); err != nil {
+		logger.Error(err, "failed to reconcile todo-api")
+		todoList.Status.Phase = "Failed"
+		_ = r.Status().Update(ctx, todoList)
 		return ctrl.Result{}, err
 	}
 	if err := r.reconcileFrontend(ctx, todoList, owner); err != nil {
+		logger.Error(err, "failed to reconcile frontend")
+		todoList.Status.Phase = "Failed"
+		_ = r.Status().Update(ctx, todoList)
 		return ctrl.Result{}, err
 	}
 
+	// Update status to Running after all reconciliations succeed
 	todoList.Status.Phase = "Running"
 	todoList.Status.MariaDBReady = true
 	todoList.Status.TodoAPIReady = true
 	todoList.Status.FrontendReady = true
 	if err := r.Status().Update(ctx, todoList); err != nil {
+		logger.Error(err, "failed to update status")
 		return ctrl.Result{}, err
 	}
 
-	logger.Info("TodoList reconciled", "owner", owner)
+	logger.Info("TodoList reconciled successfully", "owner", owner, "namespace", todoList.Namespace)
 	return ctrl.Result{}, nil
 }
 
@@ -243,7 +254,18 @@ func (r *TodoListReconciler) reconcileMariaDB(ctx context.Context, todoList *tod
 }
 
 func (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	// Get replicas from spec, default to 1
 	replicas := int32(1)
+	if todoList.Spec.APIReplicas != nil {
+		replicas = *todoList.Spec.APIReplicas
+	}
+
+	// Get service type from spec, default to ClusterIP
+	serviceType := corev1.ServiceTypeClusterIP
+	if todoList.Spec.ServiceType != nil {
+		serviceType = *todoList.Spec.ServiceType
+	}
+
 	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-todo-api", owner),
@@ -300,6 +322,14 @@ func (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *tod
 		} else {
 			return err
 		}
+	} else {
+		// Update existing deployment if replicas changed
+		if found.Spec.Replicas == nil || *found.Spec.Replicas != replicas {
+			found.Spec.Replicas = &replicas
+			if err := r.Update(ctx, found); err != nil {
+				return err
+			}
+		}
 	}
 
 	svc := &corev1.Service{
@@ -310,7 +340,7 @@ func (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *tod
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{"app": "todo-api", "owner": owner},
 			Ports:    []corev1.ServicePort{{Name: "http", Port: 8080, TargetPort: intstr.FromInt(8080)}},
-			Type:     corev1.ServiceTypeClusterIP,
+			Type:     serviceType,
 		},
 	}
 	if err := controllerutil.SetControllerReference(todoList, svc, r.Scheme); err != nil {
@@ -322,12 +352,31 @@ func (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *tod
 			return r.Create(ctx, svc)
 		}
 		return err
+	} else {
+		// Update existing service if type changed
+		if foundSvc.Spec.Type != serviceType {
+			foundSvc.Spec.Type = serviceType
+			if err := r.Update(ctx, foundSvc); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
 
 func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	// Get replicas from spec, default to 1
 	replicas := int32(1)
+	if todoList.Spec.FrontendReplicas != nil {
+		replicas = *todoList.Spec.FrontendReplicas
+	}
+
+	// Get service type from spec, default to ClusterIP
+	serviceType := corev1.ServiceTypeClusterIP
+	if todoList.Spec.ServiceType != nil {
+		serviceType = *todoList.Spec.ServiceType
+	}
+
 	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-todolist-vue", owner),
@@ -373,6 +422,14 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 		} else {
 			return err
 		}
+	} else {
+		// Update existing deployment if replicas changed
+		if found.Spec.Replicas == nil || *found.Spec.Replicas != replicas {
+			found.Spec.Replicas = &replicas
+			if err := r.Update(ctx, found); err != nil {
+				return err
+			}
+		}
 	}
 
 	svc := &corev1.Service{
@@ -383,7 +440,7 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{"app": "todolist-vue", "owner": owner},
 			Ports:    []corev1.ServicePort{{Name: "http", Port: 8080, TargetPort: intstr.FromInt(8080)}},
-			Type:     corev1.ServiceTypeClusterIP,
+			Type:     serviceType,
 		},
 	}
 	if err := controllerutil.SetControllerReference(todoList, svc, r.Scheme); err != nil {
@@ -395,6 +452,14 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 			return r.Create(ctx, svc)
 		}
 		return err
+	} else {
+		// Update existing service if type changed
+		if foundSvc.Spec.Type != serviceType {
+			foundSvc.Spec.Type = serviceType
+			if err := r.Update(ctx, foundSvc); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

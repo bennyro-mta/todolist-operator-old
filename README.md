@@ -37,7 +37,6 @@ The operator manages the following components:
 1. **Apply the CRDs**:
 ```bash
 kubectl apply -f manifests/todolist-crd.yaml
-kubectl apply -f manifests/todo-crd.yaml
 ```
 
 2. **Create the operator namespace and RBAC**:
@@ -163,7 +162,6 @@ go build -o manager main.go
 ```bash
 # Install CRDs
 kubectl apply -f manifests/todolist-crd.yaml
-kubectl apply -f manifests/todo-crd.yaml
 
 # Run the operator locally
 go run main.go
@@ -176,14 +174,11 @@ todolist-operator/
 ├── api/
 │   └── v1/
 │       ├── groupversion_info.go    # API group and version
-│       ├── todolist_types.go       # TodoList CRD types
-│       └── todo_types.go           # Todo CRD types
+│       └── todolist_types.go       # TodoList CRD types
 ├── controllers/
-│   ├── todolist_controller.go      # TodoList reconciler
-│   └── todo_controller.go          # Todo reconciler
+│   └── todolist_controller.go      # TodoList reconciler
 ├── manifests/
 │   ├── todolist-crd.yaml           # TodoList CRD definition
-│   ├── todo-crd.yaml               # Todo CRD definition
 │   ├── rbac.yaml                   # RBAC configuration
 │   └── operator.yaml               # Operator deployment
 ├── Dockerfile                      # Container image definition
@@ -196,8 +191,6 @@ todolist-operator/
 
 - **Automatic Stack Deployment**: Single CRD creates entire application stack
 - **Immutable TodoList**: Once deployed, TodoList specs cannot be changed
-- **Dynamic Todo Management**: Create and update todos via Kubernetes API
-- **Backend Sync**: Todos automatically sync with REST API backend
 - **Multi-tenancy**: Use different owner prefixes for multiple instances
 - **Clean Resource Management**: All resources owned by CRDs are cleaned up on deletion
 

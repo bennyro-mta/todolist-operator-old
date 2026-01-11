@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
 - todolist-crd.yaml
-- todo-crd.yaml
 - operator.yaml
 - rbac.yaml
 

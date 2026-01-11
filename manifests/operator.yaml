@@ -4,6 +4,91 @@ metadata:
   name: todolist-operator-system
 
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: todolist-operator
+  namespace: todolist-operator-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: todolist-operator-role
+rules:
+- apiGroups:
+  - todolist.example.com
+  resources:
+  - todolists
+  - todolists/status
+  - todolists/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - configmaps
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: todolist-operator-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: todolist-operator-role
+subjects:
+- kind: ServiceAccount
+  name: todolist-operator
+  namespace: todolist-operator-system
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,6 +107,8 @@ spec:
         app: todolist-operator
     spec:
       serviceAccountName: todolist-operator
+      # imagePullSecrets:
+      # - name: ghcr-mta-secret
       containers:
       - name: manager
         image: todolist-operator:latest

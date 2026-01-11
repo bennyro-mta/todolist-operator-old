@@ -24,6 +24,26 @@ spec:
               owner:
                 type: string
                 description: "Owner prefix for resource names and USER environment variable"
+              frontendReplicas:
+                type: integer
+                format: int32
+                default: 1
+                minimum: 0
+                description: "Number of replicas for the frontend deployment"
+              apiReplicas:
+                type: integer
+                format: int32
+                default: 1
+                minimum: 0
+                description: "Number of replicas for the API deployment"
+              serviceType:
+                type: string
+                default: ClusterIP
+                enum:
+                - ClusterIP
+                - NodePort
+                - LoadBalancer
+                description: "Kubernetes service type for both frontend and API services"
             required:
             - owner
           status:

@@ -2,6 +2,7 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // TodoListSpec defines the desired state of TodoList
@@ -52,4 +53,30 @@ type TodoListList struct {
 
 func init() {
 	SchemeBuilder.Register(&TodoList{}, &TodoListList{})
+}
+
+// DeepCopyObject implements runtime.Object for TodoList
+func (in *TodoList) DeepCopyObject() runtime.Object {
+	if in == nil {
+		return nil
+	}
+	out := new(TodoList)
+	*out = *in
+	// shallow copy of ObjectMeta is acceptable for basic usage
+	// Items in Status/Spec are value types
+	return out
+}
+
+// DeepCopyObject implements runtime.Object for TodoListList
+func (in *TodoListList) DeepCopyObject() runtime.Object {
+	if in == nil {
+		return nil
+	}
+	out := new(TodoListList)
+	*out = *in
+	if in.Items != nil {
+		out.Items = make([]TodoList, len(in.Items))
+		copy(out.Items, in.Items)
+	}
+	return out
 }

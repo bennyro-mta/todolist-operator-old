@@ -1,4 +1,3 @@
-package v1
 // Package v1 contains API Schema definitions for the todolist v1 API group
 // +kubebuilder:object:generate=true
 // +groupName=todolist.example.com

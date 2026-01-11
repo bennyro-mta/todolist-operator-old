@@ -6,7 +6,7 @@ spec:
   group: todolist.example.com
   names:
     kind: Todo
-    listKind: TodoList
+    listKind: TodoItemList
     plural: todos
     singular: todo
   scope: Namespaced

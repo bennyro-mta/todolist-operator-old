@@ -1,5 +1,4 @@
 package controllers
-package controllers
 
 import (
 	"context"
@@ -35,473 +34,378 @@ type TodoListReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop
 func (r *TodoListReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := log.FromContext(ctx)
+	logger := log.FromContext(ctx)
 
-	// Fetch the TodoList instance
 	todoList := &todolistv1.TodoList{}
-	err := r.Get(ctx, req.NamespacedName, todoList)
-	if err != nil {
+	if err := r.Get(ctx, req.NamespacedName, todoList); err != nil {
 		if errors.IsNotFound(err) {
-			// Object not found, could have been deleted
-			log.Info("TodoList resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		log.Error(err, "Failed to get TodoList")
 		return ctrl.Result{}, err
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}		Complete(r)		Owns(&corev1.Secret{}).		Owns(&corev1.ConfigMap{}).		Owns(&corev1.Service{}).		Owns(&appsv1.Deployment{}).		For(&todolistv1.TodoList{}).	return ctrl.NewControllerManagedBy(mgr).func (r *TodoListReconciler) SetupWithManager(mgr ctrl.Manager) error {// SetupWithManager sets up the controller with the Manager.}	return err	}		return r.Create(ctx, service)	if err != nil && errors.IsNotFound(err) {	err = r.Get(ctx, client.ObjectKey{Name: service.Name, Namespace: service.Namespace}, foundSvc)	foundSvc := &corev1.Service{}	}		return err	if err := controllerutil.SetControllerReference(todoList, service, r.Scheme); err != nil {	}		},			Type: corev1.ServiceTypeClusterIP,			},				},					TargetPort: intstr.FromInt(8080),					Port:       8080,					Name:       "http",				{			Ports: []corev1.ServicePort{			},				"owner": owner,				"app":   "todolist-vue",			Selector: map[string]string{		Spec: corev1.ServiceSpec{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todolist-vue", owner),		ObjectMeta: metav1.ObjectMeta{	service := &corev1.Service{	// Frontend Service	}		}			return err		if err := r.Create(ctx, deployment); err != nil {	if err != nil && errors.IsNotFound(err) {	err := r.Get(ctx, client.ObjectKey{Name: deployment.Name, Namespace: deployment.Namespace}, found)	found := &appsv1.Deployment{}	}		return err	if err := controllerutil.SetControllerReference(todoList, deployment, r.Scheme); err != nil {	}		},			},				},					},						},							},								},									},										},											Name: fmt.Sprintf("%s-todolist-vue-config", owner),										LocalObjectReference: corev1.LocalObjectReference{									ConfigMapRef: &corev1.ConfigMapEnvSource{								{							EnvFrom: []corev1.EnvFromSource{							},								{ContainerPort: 8080},							Ports: []corev1.ContainerPort{							Image: "ghcr.io/bennyro-mta/todolist-vue:1.2",							Name:  "todolist-vue",						{					Containers: []corev1.Container{				Spec: corev1.PodSpec{				},					},						"owner": owner,						"app":   "todolist-vue",					Labels: map[string]string{				ObjectMeta: metav1.ObjectMeta{			Template: corev1.PodTemplateSpec{			},				},					"owner": owner,					"app":   "todolist-vue",				MatchLabels: map[string]string{			Selector: &metav1.LabelSelector{			Replicas: &replicas,		Spec: appsv1.DeploymentSpec{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todolist-vue", owner),		ObjectMeta: metav1.ObjectMeta{	deployment := &appsv1.Deployment{	replicas := int32(1)	// Frontend Deploymentfunc (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {}	return err	}		return r.Create(ctx, service)	if err != nil && errors.IsNotFound(err) {	err = r.Get(ctx, client.ObjectKey{Name: service.Name, Namespace: service.Namespace}, foundSvc)	foundSvc := &corev1.Service{}	}		return err	if err := controllerutil.SetControllerReference(todoList, service, r.Scheme); err != nil {	}		},			Type: corev1.ServiceTypeClusterIP,			},				},					TargetPort: intstr.FromInt(8080),					Port:       8080,					Name:       "http",				{			Ports: []corev1.ServicePort{			},				"owner": owner,				"app":   "todo-api",			Selector: map[string]string{		Spec: corev1.ServiceSpec{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todo-api", owner),		ObjectMeta: metav1.ObjectMeta{	service := &corev1.Service{	// Todo API Service	}		}			return err		if err := r.Create(ctx, deployment); err != nil {	if err != nil && errors.IsNotFound(err) {	err := r.Get(ctx, client.ObjectKey{Name: deployment.Name, Namespace: deployment.Namespace}, found)	found := &appsv1.Deployment{}	}		return err	if err := controllerutil.SetControllerReference(todoList, deployment, r.Scheme); err != nil {	}		},			},				},					},						},							},								},									},										},											Key: "MYSQL_ROOT_PASSWORD",											},												Name: fmt.Sprintf("%s-todolist-secret", owner),											LocalObjectReference: corev1.LocalObjectReference{										SecretKeyRef: &corev1.SecretKeySelector{									ValueFrom: &corev1.EnvVarSource{									Name: "MYSQL_PASSWORD",								{							Env: []corev1.EnvVar{							},								},									},										},											Name: fmt.Sprintf("%s-todolist-config", owner),										LocalObjectReference: corev1.LocalObjectReference{									ConfigMapRef: &corev1.ConfigMapEnvSource{								{							EnvFrom: []corev1.EnvFromSource{							},								{ContainerPort: 8080, Name: "http"},							Ports: []corev1.ContainerPort{							Image: "ghcr.io/bennyro-mta/todos-api:1.2",							Name:  "todo-api",						{					Containers: []corev1.Container{				Spec: corev1.PodSpec{				},					},						"owner": owner,						"app":   "todo-api",					Labels: map[string]string{				ObjectMeta: metav1.ObjectMeta{			Template: corev1.PodTemplateSpec{			},				},					"owner": owner,					"app":   "todo-api",				MatchLabels: map[string]string{			Selector: &metav1.LabelSelector{			Replicas: &replicas,		Spec: appsv1.DeploymentSpec{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todo-api", owner),		ObjectMeta: metav1.ObjectMeta{	deployment := &appsv1.Deployment{	replicas := int32(1)	// Todo API Deploymentfunc (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {}	return err	}		return r.Create(ctx, service)	if err != nil && errors.IsNotFound(err) {	err = r.Get(ctx, client.ObjectKey{Name: service.Name, Namespace: service.Namespace}, foundSvc)	foundSvc := &corev1.Service{}	}		return err	if err := controllerutil.SetControllerReference(todoList, service, r.Scheme); err != nil {	}		},			Type: corev1.ServiceTypeClusterIP,			},				},					TargetPort: intstr.FromInt(3306),					Port:       3306,				{			Ports: []corev1.ServicePort{			},				"owner": owner,				"app":   "mariadb",			Selector: map[string]string{		Spec: corev1.ServiceSpec{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-mariadb", owner),		ObjectMeta: metav1.ObjectMeta{	service := &corev1.Service{	// MariaDB Service	}		}			return err		if err := r.Create(ctx, deployment); err != nil {	if err != nil && errors.IsNotFound(err) {	err := r.Get(ctx, client.ObjectKey{Name: deployment.Name, Namespace: deployment.Namespace}, found)	found := &appsv1.Deployment{}	}		return err	if err := controllerutil.SetControllerReference(todoList, deployment, r.Scheme); err != nil {	}		},			},				},					},						},							},								EmptyDir: &corev1.EmptyDirVolumeSource{},							VolumeSource: corev1.VolumeSource{							Name: "mariadb-data",						{					Volumes: []corev1.Volume{					},						},							},								},									MountPath: "/var/lib/mysql",									Name:      "mariadb-data",								{							VolumeMounts: []corev1.VolumeMount{							},								},									},										},											Key: "MYSQL_ROOT_PASSWORD",											},												Name: fmt.Sprintf("%s-todolist-secret", owner),											LocalObjectReference: corev1.LocalObjectReference{										SecretKeyRef: &corev1.SecretKeySelector{									ValueFrom: &corev1.EnvVarSource{									Name: "MYSQL_ROOT_PASSWORD",								{							Env: []corev1.EnvVar{							},								{ContainerPort: 3306},							Ports: []corev1.ContainerPort{							Image: "mariadb:latest",							Name:  "mariadb",						{					Containers: []corev1.Container{				Spec: corev1.PodSpec{				},					},						"owner": owner,						"app":   "mariadb",					Labels: map[string]string{				ObjectMeta: metav1.ObjectMeta{			Template: corev1.PodTemplateSpec{			},				},					"owner": owner,					"app":   "mariadb",				MatchLabels: map[string]string{			Selector: &metav1.LabelSelector{			Replicas: &replicas,		Spec: appsv1.DeploymentSpec{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-mariadb", owner),		ObjectMeta: metav1.ObjectMeta{	deployment := &appsv1.Deployment{	replicas := int32(1)	// MariaDB Deploymentfunc (r *TodoListReconciler) reconcileMariaDB(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {}	return err	}		return r.Create(ctx, frontendConfigMap)	if err != nil && errors.IsNotFound(err) {	err = r.Get(ctx, client.ObjectKey{Name: frontendConfigMap.Name, Namespace: frontendConfigMap.Namespace}, found)	}		return err	if err := controllerutil.SetControllerReference(todoList, frontendConfigMap, r.Scheme); err != nil {	}		},			"USER":         owner,			"API_BASE_URL": "/todos",		Data: map[string]string{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todolist-vue-config", owner),		ObjectMeta: metav1.ObjectMeta{	frontendConfigMap := &corev1.ConfigMap{	// ConfigMap for frontend	}		}			return err		if err := r.Create(ctx, apiConfigMap); err != nil {	if err != nil && errors.IsNotFound(err) {	err := r.Get(ctx, client.ObjectKey{Name: apiConfigMap.Name, Namespace: apiConfigMap.Namespace}, found)	found := &corev1.ConfigMap{}	}		return err	if err := controllerutil.SetControllerReference(todoList, apiConfigMap, r.Scheme); err != nil {	}		},			"MYSQL_TABLE": "todos",			"MYSQL_USER":  "root",			"MYSQL_HOST":  fmt.Sprintf("%s-mariadb", owner),			"MYSQL_DB":    "todolist",		Data: map[string]string{		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todolist-config", owner),		ObjectMeta: metav1.ObjectMeta{	apiConfigMap := &corev1.ConfigMap{	// ConfigMap for todo-apifunc (r *TodoListReconciler) reconcileConfigMaps(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {}	return err	}		return r.Create(ctx, secret)	if err != nil && errors.IsNotFound(err) {	err := r.Get(ctx, client.ObjectKey{Name: secret.Name, Namespace: secret.Namespace}, found)	found := &corev1.Secret{}	}		return err	if err := controllerutil.SetControllerReference(todoList, secret, r.Scheme); err != nil {	}		},			"MYSQL_ROOT_PASSWORD": []byte("todolist123"),		Data: map[string][]byte{		Type: corev1.SecretTypeOpaque,		},			Namespace: todoList.Namespace,			Name:      fmt.Sprintf("%s-todolist-secret", owner),		ObjectMeta: metav1.ObjectMeta{	secret := &corev1.Secret{func (r *TodoListReconciler) reconcileSecret(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {}	return ctrl.Result{}, nil	log.Info("Successfully reconciled TodoList", "owner", owner)	}		return ctrl.Result{}, err		log.Error(err, "Failed to update TodoList status to Running")	if err := r.Status().Update(ctx, todoList); err != nil {	todoList.Status.FrontendReady = true	todoList.Status.TodoAPIReady = true	todoList.Status.MariaDBReady = true	todoList.Status.Phase = "Running"	// Update status to Running	}		return ctrl.Result{}, err		log.Error(err, "Failed to reconcile Frontend")	if err := r.reconcileFrontend(ctx, todoList, owner); err != nil {	// Create Frontend Deployment and Service	}		return ctrl.Result{}, err		log.Error(err, "Failed to reconcile Todo API")	if err := r.reconcileTodoAPI(ctx, todoList, owner); err != nil {	// Create Todo API Deployment and Service	}		return ctrl.Result{}, err		log.Error(err, "Failed to reconcile MariaDB")	if err := r.reconcileMariaDB(ctx, todoList, owner); err != nil {	// Create MariaDB Deployment and Service	}		return ctrl.Result{}, err		log.Error(err, "Failed to reconcile ConfigMaps")	if err := r.reconcileConfigMaps(ctx, todoList, owner); err != nil {	// Create ConfigMaps	}		return ctrl.Result{}, err		log.Error(err, "Failed to reconcile Secret")	if err := r.reconcileSecret(ctx, todoList, owner); err != nil {	// Create Secret	owner := todoList.Spec.Owner	}		}			return ctrl.Result{}, err			log.Error(err, "Failed to update TodoList status")		if err := r.Status().Update(ctx, todoList); err != nil {		todoList.Status.Phase = "Pending"	if todoList.Status.Phase == "" {	// Set initial status	}		return ctrl.Result{}, nil		log.Info("TodoList is immutable after deployment", "phase", todoList.Status.Phase)	if todoList.Status.Phase != "" && todoList.Status.Phase != "Pending" {	// Check if immutable after creation	}
+	}
+
+	if todoList.Status.Phase != "" && todoList.Status.Phase != "Pending" {
+		return ctrl.Result{}, nil
+	}
+
+	if todoList.Status.Phase == "" {
+		todoList.Status.Phase = "Pending"
+		if err := r.Status().Update(ctx, todoList); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
+
+	owner := todoList.Spec.Owner
+
+	if err := r.reconcileSecret(ctx, todoList, owner); err != nil {
+		return ctrl.Result{}, err
+	}
+	if err := r.reconcileConfigMaps(ctx, todoList, owner); err != nil {
+		return ctrl.Result{}, err
+	}
+	if err := r.reconcileMariaDB(ctx, todoList, owner); err != nil {
+		return ctrl.Result{}, err
+	}
+	if err := r.reconcileTodoAPI(ctx, todoList, owner); err != nil {
+		return ctrl.Result{}, err
+	}
+	if err := r.reconcileFrontend(ctx, todoList, owner); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	todoList.Status.Phase = "Running"
+	todoList.Status.MariaDBReady = true
+	todoList.Status.TodoAPIReady = true
+	todoList.Status.FrontendReady = true
+	if err := r.Status().Update(ctx, todoList); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	logger.Info("TodoList reconciled", "owner", owner)
+	return ctrl.Result{}, nil
+}
+
+func (r *TodoListReconciler) reconcileSecret(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todolist-secret", owner),
+			Namespace: todoList.Namespace,
+		},
+		Type: corev1.SecretTypeOpaque,
+		Data: map[string][]byte{
+			"MYSQL_ROOT_PASSWORD": []byte("todolist123"),
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, secret, r.Scheme); err != nil {
+		return err
+	}
+
+	found := &corev1.Secret{}
+	if err := r.Get(ctx, client.ObjectKey{Name: secret.Name, Namespace: secret.Namespace}, found); err != nil {
+		if errors.IsNotFound(err) {
+			return r.Create(ctx, secret)
+		}
+		return err
+	}
+	return nil
+}
+
+func (r *TodoListReconciler) reconcileConfigMaps(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	apiCfg := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todolist-config", owner),
+			Namespace: todoList.Namespace,
+		},
+		Data: map[string]string{
+			"MYSQL_DB":    "todolist",
+			"MYSQL_HOST":  fmt.Sprintf("%s-mariadb", owner),
+			"MYSQL_USER":  "root",
+			"MYSQL_TABLE": "todos",
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, apiCfg, r.Scheme); err != nil {
+		return err
+	}
+	found := &corev1.ConfigMap{}
+	if err := r.Get(ctx, client.ObjectKey{Name: apiCfg.Name, Namespace: apiCfg.Namespace}, found); err != nil {
+		if errors.IsNotFound(err) {
+			if err := r.Create(ctx, apiCfg); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	frontCfg := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todolist-vue-config", owner),
+			Namespace: todoList.Namespace,
+		},
+		Data: map[string]string{
+			"API_BASE_URL": "/todos",
+			"USER":         owner,
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, frontCfg, r.Scheme); err != nil {
+		return err
+	}
+	if err := r.Get(ctx, client.ObjectKey{Name: frontCfg.Name, Namespace: frontCfg.Namespace}, found); err != nil {
+		if errors.IsNotFound(err) {
+			return r.Create(ctx, frontCfg)
+		}
+		return err
+	}
+	return nil
+}
+
+func (r *TodoListReconciler) reconcileMariaDB(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	replicas := int32(1)
+	deploy := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-mariadb", owner),
+			Namespace: todoList.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &replicas,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "mariadb", "owner": owner},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"app": "mariadb", "owner": owner},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "mariadb",
+							Image: "mariadb:latest",
+							Ports: []corev1.ContainerPort{{ContainerPort: 3306}},
+							Env: []corev1.EnvVar{
+								{
+									Name: "MYSQL_ROOT_PASSWORD",
+									ValueFrom: &corev1.EnvVarSource{
+										SecretKeyRef: &corev1.SecretKeySelector{
+											LocalObjectReference: corev1.LocalObjectReference{Name: fmt.Sprintf("%s-todolist-secret", owner)},
+											Key:                  "MYSQL_ROOT_PASSWORD",
+										},
+									},
+								},
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{Name: "mariadb-data", MountPath: "/var/lib/mysql"},
+							},
+						},
+					},
+					Volumes: []corev1.Volume{
+						{Name: "mariadb-data", VolumeSource: corev1.VolumeSource{EmptyDir: &corev1.EmptyDirVolumeSource{}}},
+					},
+				},
+			},
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, deploy, r.Scheme); err != nil {
+		return err
+	}
+	found := &appsv1.Deployment{}
+	if err := r.Get(ctx, client.ObjectKey{Name: deploy.Name, Namespace: deploy.Namespace}, found); err != nil {
+		if errors.IsNotFound(err) {
+			if err := r.Create(ctx, deploy); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-mariadb", owner),
+			Namespace: todoList.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{"app": "mariadb", "owner": owner},
+			Ports:    []corev1.ServicePort{{Port: 3306, TargetPort: intstr.FromInt(3306)}},
+			Type:     corev1.ServiceTypeClusterIP,
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, svc, r.Scheme); err != nil {
+		return err
+	}
+	foundSvc := &corev1.Service{}
+	if err := r.Get(ctx, client.ObjectKey{Name: svc.Name, Namespace: svc.Namespace}, foundSvc); err != nil {
+		if errors.IsNotFound(err) {
+			return r.Create(ctx, svc)
+		}
+		return err
+	}
+	return nil
+}
+
+func (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	replicas := int32(1)
+	deploy := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todo-api", owner),
+			Namespace: todoList.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &replicas,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "todo-api", "owner": owner},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"app": "todo-api", "owner": owner},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "todo-api",
+							Image: "ghcr.io/bennyro-mta/todos-api:1.2",
+							Ports: []corev1.ContainerPort{{ContainerPort: 8080, Name: "http"}},
+							EnvFrom: []corev1.EnvFromSource{
+								{
+									ConfigMapRef: &corev1.ConfigMapEnvSource{
+										LocalObjectReference: corev1.LocalObjectReference{Name: fmt.Sprintf("%s-todolist-config", owner)},
+									},
+								},
+							},
+							Env: []corev1.EnvVar{
+								{
+									Name: "MYSQL_PASSWORD",
+									ValueFrom: &corev1.EnvVarSource{
+										SecretKeyRef: &corev1.SecretKeySelector{
+											LocalObjectReference: corev1.LocalObjectReference{Name: fmt.Sprintf("%s-todolist-secret", owner)},
+											Key:                  "MYSQL_ROOT_PASSWORD",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, deploy, r.Scheme); err != nil {
+		return err
+	}
+	found := &appsv1.Deployment{}
+	if err := r.Get(ctx, client.ObjectKey{Name: deploy.Name, Namespace: deploy.Namespace}, found); err != nil {
+		if errors.IsNotFound(err) {
+			if err := r.Create(ctx, deploy); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todo-api", owner),
+			Namespace: todoList.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{"app": "todo-api", "owner": owner},
+			Ports:    []corev1.ServicePort{{Name: "http", Port: 8080, TargetPort: intstr.FromInt(8080)}},
+			Type:     corev1.ServiceTypeClusterIP,
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, svc, r.Scheme); err != nil {
+		return err
+	}
+	foundSvc := &corev1.Service{}
+	if err := r.Get(ctx, client.ObjectKey{Name: svc.Name, Namespace: svc.Namespace}, foundSvc); err != nil {
+		if errors.IsNotFound(err) {
+			return r.Create(ctx, svc)
+		}
+		return err
+	}
+	return nil
+}
+
+func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *todolistv1.TodoList, owner string) error {
+	replicas := int32(1)
+	deploy := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todolist-vue", owner),
+			Namespace: todoList.Namespace,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: &replicas,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": "todolist-vue", "owner": owner},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"app": "todolist-vue", "owner": owner},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "todolist-vue",
+							Image: "ghcr.io/bennyro-mta/todolist-vue:1.2",
+							Ports: []corev1.ContainerPort{{ContainerPort: 8080}},
+							EnvFrom: []corev1.EnvFromSource{
+								{
+									ConfigMapRef: &corev1.ConfigMapEnvSource{
+										LocalObjectReference: corev1.LocalObjectReference{Name: fmt.Sprintf("%s-todolist-vue-config", owner)},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, deploy, r.Scheme); err != nil {
+		return err
+	}
+	found := &appsv1.Deployment{}
+	if err := r.Get(ctx, client.ObjectKey{Name: deploy.Name, Namespace: deploy.Namespace}, found); err != nil {
+		if errors.IsNotFound(err) {
+			if err := r.Create(ctx, deploy); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-todolist-vue", owner),
+			Namespace: todoList.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: map[string]string{"app": "todolist-vue", "owner": owner},
+			Ports:    []corev1.ServicePort{{Name: "http", Port: 8080, TargetPort: intstr.FromInt(8080)}},
+			Type:     corev1.ServiceTypeClusterIP,
+		},
+	}
+	if err := controllerutil.SetControllerReference(todoList, svc, r.Scheme); err != nil {
+		return err
+	}
+	foundSvc := &corev1.Service{}
+	if err := r.Get(ctx, client.ObjectKey{Name: svc.Name, Namespace: svc.Namespace}, foundSvc); err != nil {
+		if errors.IsNotFound(err) {
+			return r.Create(ctx, svc)
+		}
+		return err
+	}
+	return nil
+}
+
+// SetupWithManager sets up the controller with the Manager.
+func (r *TodoListReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&todolistv1.TodoList{}).
+		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
+		Owns(&corev1.ConfigMap{}).
+		Owns(&corev1.Secret{}).
+		Complete(r)
+}

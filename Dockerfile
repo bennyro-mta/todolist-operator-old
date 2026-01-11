@@ -5,10 +5,10 @@ WORKDIR /workspace
 
 # Copy go.mod and go.sum
 COPY go.mod go.mod
-COPY go.sum* go.sum* 
+COPY go.sum go.sum 
 
-# Download dependencies
-RUN go mod download
+# Download and verify dependencies
+RUN go mod download && go mod verify
 
 # Copy the source code
 COPY main.go main.go

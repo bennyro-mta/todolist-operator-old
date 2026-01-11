@@ -2,6 +2,7 @@ package v1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // TodoSpec defines the desired state of Todo
@@ -48,13 +49,37 @@ type Todo struct {
 
 // +kubebuilder:object:root=true
 
-// TodoList contains a list of Todo
-type TodoList struct {
+// TodoItemList contains a list of Todo
+type TodoItemList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []Todo `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Todo{}, &TodoList{})
+	SchemeBuilder.Register(&Todo{}, &TodoItemList{})
+}
+
+// DeepCopyObject implements runtime.Object for Todo
+func (in *Todo) DeepCopyObject() runtime.Object {
+	if in == nil {
+		return nil
+	}
+	out := new(Todo)
+	*out = *in
+	return out
+}
+
+// DeepCopyObject implements runtime.Object for TodoItemList
+func (in *TodoItemList) DeepCopyObject() runtime.Object {
+	if in == nil {
+		return nil
+	}
+	out := new(TodoItemList)
+	*out = *in
+	if in.Items != nil {
+		out.Items = make([]Todo, len(in.Items))
+		copy(out.Items, in.Items)
+	}
+	return out
 }

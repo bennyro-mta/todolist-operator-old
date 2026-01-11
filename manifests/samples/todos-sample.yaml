@@ -1,0 +1,31 @@
+apiVersion: todolist.example.com/v1
+kind: Todo
+metadata:
+  name: sample-todo-1
+  namespace: default
+spec:
+  todolistName: demo-todolist
+  task: "Complete operator implementation"
+  status: "completed"
+
+---
+apiVersion: todolist.example.com/v1
+kind: Todo
+metadata:
+  name: sample-todo-2
+  namespace: default
+spec:
+  todolistName: demo-todolist
+  task: "Write documentation"
+  status: "completed"
+
+---
+apiVersion: todolist.example.com/v1
+kind: Todo
+metadata:
+  name: sample-todo-3
+  namespace: default
+spec:
+  todolistName: demo-todolist
+  task: "Test the operator"
+  status: "pending"

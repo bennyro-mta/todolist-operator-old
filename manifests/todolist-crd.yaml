@@ -1,0 +1,55 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: todolists.todolist.example.com
+spec:
+  group: todolist.example.com
+  names:
+    kind: TodoList
+    listKind: TodoListList
+    plural: todolists
+    singular: todolist
+  scope: Namespaced
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              owner:
+                type: string
+                description: "Owner prefix for resource names and USER environment variable"
+            required:
+            - owner
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                description: "Current phase of the TodoList (Pending, Running, Failed)"
+              mariadbReady:
+                type: boolean
+                description: "MariaDB readiness status"
+              todoApiReady:
+                type: boolean
+                description: "Todo API readiness status"
+              frontendReady:
+                type: boolean
+                description: "Frontend readiness status"
+    subresources:
+      status: {}
+    additionalPrinterColumns:
+    - name: Owner
+      type: string
+      jsonPath: .spec.owner
+    - name: Phase
+      type: string
+      jsonPath: .status.phase
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp

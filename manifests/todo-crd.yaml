@@ -1,0 +1,68 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: todos.todolist.example.com
+spec:
+  group: todolist.example.com
+  names:
+    kind: Todo
+    listKind: TodoList
+    plural: todos
+    singular: todo
+  scope: Namespaced
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              todolistName:
+                type: string
+                description: "Name of the TodoList instance this todo belongs to"
+              task:
+                type: string
+                description: "The task description"
+              status:
+                type: string
+                description: "Task status (pending, completed, etc.)"
+            required:
+            - todolistName
+            - task
+            - status
+          status:
+            type: object
+            properties:
+              backendId:
+                type: integer
+                format: int64
+                description: "ID from the backend todo-api service"
+              synced:
+                type: boolean
+                description: "Whether the todo is synced with the backend"
+              lastSyncTime:
+                type: string
+                format: date-time
+                description: "Last time the todo was synced with backend"
+    subresources:
+      status: {}
+    additionalPrinterColumns:
+    - name: Task
+      type: string
+      jsonPath: .spec.task
+    - name: Status
+      type: string
+      jsonPath: .spec.status
+    - name: TodoList
+      type: string
+      jsonPath: .spec.todolistName
+    - name: Synced
+      type: boolean
+      jsonPath: .status.synced
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp

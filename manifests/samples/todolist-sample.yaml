@@ -1,0 +1,7 @@
+apiVersion: todolist.example.com/v1
+kind: TodoList
+metadata:
+  name: demo-todolist
+  namespace: default
+spec:
+  owner: demo

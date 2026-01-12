@@ -148,13 +148,18 @@ func (r *TodoListReconciler) reconcileConfigMaps(ctx context.Context, todoList *
 		}
 	}
 
+	apiBaseURL := "/todos"
+	if todoList.Spec.APIBaseURL != nil {
+		apiBaseURL = *todoList.Spec.APIBaseURL
+	}
+
 	frontCfg := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-todolist-vue-config", owner),
 			Namespace: todoList.Namespace,
 		},
 		Data: map[string]string{
-			"API_BASE_URL": "/todos",
+			"API_BASE_URL": apiBaseURL,
 			"USER":         owner,
 		},
 	}
@@ -166,6 +171,18 @@ func (r *TodoListReconciler) reconcileConfigMaps(ctx context.Context, todoList *
 			return r.Create(ctx, frontCfg)
 		}
 		return err
+	}
+
+	// Update existing configmap if values changed
+	if found.Data == nil {
+		found.Data = map[string]string{}
+	}
+	if found.Data["API_BASE_URL"] != apiBaseURL || found.Data["USER"] != owner {
+		found.Data["API_BASE_URL"] = apiBaseURL
+		found.Data["USER"] = owner
+		if err := r.Update(ctx, found); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -323,7 +340,6 @@ func (r *TodoListReconciler) reconcileTodoAPI(ctx context.Context, todoList *tod
 			return err
 		}
 	} else {
-		// Update existing deployment if replicas changed
 		if found.Spec.Replicas == nil || *found.Spec.Replicas != replicas {
 			found.Spec.Replicas = &replicas
 			if err := r.Update(ctx, found); err != nil {
@@ -377,6 +393,12 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 		serviceType = *todoList.Spec.ServiceType
 	}
 
+	// Get API base URL, default to /todos
+	apiBaseURL := "/todos"
+	if todoList.Spec.APIBaseURL != nil {
+		apiBaseURL = *todoList.Spec.APIBaseURL
+	}
+
 	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-todolist-vue", owner),
@@ -389,7 +411,8 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{"app": "todolist-vue", "owner": owner},
+					Labels:      map[string]string{"app": "todolist-vue", "owner": owner},
+					Annotations: map[string]string{"todolist.example.com/api-base-url": apiBaseURL},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{

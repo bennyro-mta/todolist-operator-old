@@ -8,3 +8,4 @@ spec:
   frontendReplicas: 2
   apiReplicas: 3
   serviceType: LoadBalancer
+  apiBaseUrl: /todos

@@ -21,6 +21,11 @@ type TodoListSpec struct {
 	// +kubebuilder:default=1
 	APIReplicas *int32 `json:"apiReplicas,omitempty"`
 
+	// APIBaseURL is the base path the frontend uses to reach the API service
+	// +optional
+	// +kubebuilder:default=/todos
+	APIBaseURL *string `json:"apiBaseUrl,omitempty"`
+
 	// ServiceType is the Kubernetes service type for both frontend and API services
 	// +optional
 	// +kubebuilder:default=ClusterIP

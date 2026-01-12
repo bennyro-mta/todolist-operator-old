@@ -36,6 +36,10 @@ spec:
                 default: 1
                 minimum: 0
                 description: "Number of replicas for the API deployment"
+              apiBaseUrl:
+                type: string
+                default: /todos
+                description: "Base path the frontend uses to reach the API service"
               serviceType:
                 type: string
                 default: ClusterIP

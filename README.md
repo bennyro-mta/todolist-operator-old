@@ -1,9 +1,8 @@
 # TodoList Operator
 
-A Kubernetes operator for managing TodoList applications with two Custom Resource Definitions (CRDs):
+A Kubernetes operator for managing TodoList applications with a Custom Resource Definition (CRD):
 
 - **TodoList**: Deploys a complete todolist application stack including MariaDB, Todo API, and Vue.js frontend
-- **Todo**: Manages individual todo items that sync with the Todo API backend
 
 ## Architecture
 
@@ -18,12 +17,6 @@ The operator manages the following components:
 - Uses `owner` field as prefix for all resource names
 - Sets `USER` environment variable in frontend to the owner value
 - Immutable after deployment (changes to spec are not reconciled)
-
-### Todo CRD
-- Creates individual todo items
-- Syncs with the Todo API backend service
-- Only the `status` field is mutable after creation
-- Requires a running TodoList instance
 
 ## Installation
 
@@ -103,44 +96,6 @@ kubectl get deployments -l owner=john
 kubectl get services -l owner=john
 ```
 
-### Create Todo Items
-
-Once the TodoList is running, create todos:
-
-Create a file `my-todo.yaml`:
-
-```yaml
-apiVersion: todolist.example.com/v1
-kind: Todo
-metadata:
-  name: my-first-todo
-  namespace: default
-spec:
-  todolistName: my-todolist
-  task: "Buy groceries"
-  status: "pending"
-```
-
-Apply it:
-```bash
-kubectl apply -f my-todo.yaml
-```
-
-### Update Todo Status
-
-Edit the status field:
-```bash
-kubectl edit todo my-first-todo
-```
-
-Change the `spec.status` field from "pending" to "completed". The operator will sync this change to the backend API.
-
-### List Todos
-
-```bash
-kubectl get todos
-```
-
 ## Development
 
 ### Build the Operator
@@ -211,22 +166,6 @@ todolist-operator/
 | `todoApiReady` | boolean | Todo API deployment status |
 | `frontendReady` | boolean | Frontend deployment status |
 
-### Todo Spec
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `todolistName` | string | Name of TodoList instance (required) |
-| `task` | string | Task description (required) |
-| `status` | string | Task status (required) |
-
-### Todo Status
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `backendId` | int64 | ID from backend API |
-| `synced` | boolean | Sync status with backend |
-| `lastSyncTime` | timestamp | Last sync timestamp |
-
 ## License
 
 This project follows the same license as the todolist application.
@@ -235,5 +174,4 @@ This project follows the same license as the todolist application.
 
 - The operator uses controller-runtime framework without operator-sdk
 - Resources are created with owner references for automatic cleanup
-- Todo status updates trigger backend API calls
 - TodoList deployments use images from ghcr.io/bennyro-mta

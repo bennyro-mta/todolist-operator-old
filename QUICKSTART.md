@@ -83,22 +83,7 @@ You should see:
 - `demo-todo-api` deployment and service
 - `demo-todolist-vue` deployment and service
 
-## Create Todos
-
-Wait for the TodoList to be in "Running" phase, then:
-
-```bash
-# Create sample todos
-kubectl apply -f manifests/samples/todos-sample.yaml
-
-# List todos
-kubectl get todos
-
-# Check a specific todo
-kubectl get todo sample-todo-1 -o yaml
-```
-
-## Update a Todo Status
+## Access the Application
 
 ```bash
 # Edit a todo
@@ -138,9 +123,6 @@ curl http://localhost:8081/todos
 ## Cleanup
 
 ```bash
-# Delete todos
-kubectl delete -f manifests/samples/todos-sample.yaml
-
 # Delete todolist (this will cascade delete all resources)
 kubectl delete -f manifests/samples/todolist-sample.yaml
 
@@ -169,12 +151,6 @@ kubectl logs -n todolist-operator-system deployment/todolist-operator
 kubectl describe todolist demo-todolist
 ```
 
-### Check Todo Status
-
-```bash
-kubectl describe todo sample-todo-1
-```
-
 ### Check Pod Status
 
 ```bash
@@ -193,12 +169,6 @@ kubectl logs deployment/demo-todolist-vue
 - Check operator logs
 - Verify image pull policy and images are accessible
 - Check RBAC permissions
-
-**Todo not syncing:**
-- Verify TodoList is in "Running" phase
-- Check todo-api pod is running
-- Check network connectivity between operator and services
-- Look at operator logs for API errors
 
 **Resources not created:**
 - Check operator has correct RBAC permissions

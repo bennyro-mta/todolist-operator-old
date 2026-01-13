@@ -111,8 +111,8 @@ spec:
       # - name: ghcr-mta-secret
       containers:
       - name: manager
-        image: ghcr.io/bennyro-mta/todolist-operator:latest
-        imagePullPolicy: IfNotPresent
+        image: ghcr.io/bennyro-mta/todolist-operator:1.0
+        imagePullPolicy: Always
         command:
         - /manager
         args:

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -173,13 +174,13 @@ func (r *TodoListReconciler) reconcileConfigMaps(ctx context.Context, todoList *
 		return err
 	}
 
-	// Update existing configmap if values changed
+	// Update existing configmap if API_BASE_URL changed
+	// Note: USER is immutable after initial deployment
 	if found.Data == nil {
 		found.Data = map[string]string{}
 	}
-	if found.Data["API_BASE_URL"] != apiBaseURL || found.Data["USER"] != owner {
+	if found.Data["API_BASE_URL"] != apiBaseURL {
 		found.Data["API_BASE_URL"] = apiBaseURL
-		found.Data["USER"] = owner
 		if err := r.Update(ctx, found); err != nil {
 			return err
 		}
@@ -399,6 +400,13 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 		apiBaseURL = *todoList.Spec.APIBaseURL
 	}
 
+	// We must restart the Vue pods when API_BASE_URL changes because envFrom(ConfigMap)
+	// is only read at container start. We do that by mutating the Deployment pod template
+	// annotations when apiBaseURL changes.
+	apiBaseURLAnnotationKey := "todolist.example.com/api-base-url"
+	restartAnnotationKey := "kubectl.kubernetes.io/restartedAt"
+	legacyConfigAnnotationKey := "todolist.example.com/api-config"
+
 	deploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-todolist-vue", owner),
@@ -411,8 +419,12 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels:      map[string]string{"app": "todolist-vue", "owner": owner},
-					Annotations: map[string]string{"todolist.example.com/api-base-url": apiBaseURL},
+					Labels: map[string]string{"app": "todolist-vue", "owner": owner},
+					Annotations: map[string]string{
+						apiBaseURLAnnotationKey:   apiBaseURL,
+						legacyConfigAnnotationKey: apiBaseURL,
+						restartAnnotationKey:      time.Now().UTC().Format(time.RFC3339Nano),
+					},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -446,9 +458,26 @@ func (r *TodoListReconciler) reconcileFrontend(ctx context.Context, todoList *to
 			return err
 		}
 	} else {
-		// Update existing deployment if replicas changed
+		// Update existing deployment if replicas or config annotation changed
+		needsUpdate := false
 		if found.Spec.Replicas == nil || *found.Spec.Replicas != replicas {
 			found.Spec.Replicas = &replicas
+			needsUpdate = true
+		}
+
+		// Check if the API base URL changed - this triggers pod restart
+		if found.Spec.Template.ObjectMeta.Annotations == nil {
+			found.Spec.Template.ObjectMeta.Annotations = map[string]string{}
+		}
+		currentAPIBaseURL := found.Spec.Template.ObjectMeta.Annotations[apiBaseURLAnnotationKey]
+		if currentAPIBaseURL != apiBaseURL {
+			found.Spec.Template.ObjectMeta.Annotations[apiBaseURLAnnotationKey] = apiBaseURL
+			found.Spec.Template.ObjectMeta.Annotations[legacyConfigAnnotationKey] = apiBaseURL
+			found.Spec.Template.ObjectMeta.Annotations[restartAnnotationKey] = time.Now().UTC().Format(time.RFC3339Nano)
+			needsUpdate = true
+		}
+
+		if needsUpdate {
 			if err := r.Update(ctx, found); err != nil {
 				return err
 			}

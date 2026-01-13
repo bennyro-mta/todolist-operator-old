@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   owner: benny
-  frontendReplicas: 2
-  apiReplicas: 3
+  frontendReplicas: 1
+  apiReplicas: 1
   serviceType: LoadBalancer
   apiBaseUrl: /todos

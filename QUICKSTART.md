@@ -83,6 +83,22 @@ You should see:
 - `demo-todo-api` deployment and service
 - `demo-todolist-vue` deployment and service
 
+## Change `apiBaseUrl` (triggers Vue restart)
+
+The frontend reads `API_BASE_URL` from a ConfigMap via `envFrom`, which only takes effect at container start.
+When you update `spec.apiBaseUrl`, the operator triggers a rolling restart of the `demo-todolist-vue` Deployment.
+
+```bash
+# Change the API base URL
+kubectl patch todolist demo-todolist --type merge -p '{"spec": {"apiBaseUrl": "/todos"}}'
+
+# Verify a rollout happens
+kubectl rollout status deployment/demo-todolist-vue
+
+# Optional: verify the pod-template annotation matches the desired value
+kubectl get deploy demo-todolist-vue -o jsonpath='{.spec.template.metadata.annotations.todolist\.example\.com/api-base-url}{"\n"}'
+```
+
 ## Access the Application
 
 ```bash

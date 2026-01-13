@@ -15,8 +15,9 @@ The operator manages the following components:
   - **Todo API**: REST API service (`ghcr.io/bennyro-mta/todos-api:1.2`)
   - **TodoList Vue**: Frontend UI (`ghcr.io/bennyro-mta/todolist-vue:1.2`)
 - Uses `owner` field as prefix for all resource names
-- Sets `USER` environment variable in frontend to the owner value
-- Immutable after deployment (changes to spec are not reconciled)
+- Sets `USER` environment variable in frontend to the owner value (immutable after initial deployment)
+- Reconciles selected spec changes after deployment (replicas, service type, API base URL)
+- Changing `apiBaseUrl` triggers a rolling restart of the `todolist-vue` Deployment so pods pick up the new `API_BASE_URL`
 
 ## Installation
 
@@ -145,7 +146,8 @@ todolist-operator/
 ## Features
 
 - **Automatic Stack Deployment**: Single CRD creates entire application stack
-- **Immutable TodoList**: Once deployed, TodoList specs cannot be changed
+- **Safe Spec Updates**: Change replicas/service type/API base URL after deployment
+- **Immutable Owner**: `spec.owner` cannot be changed after creation
 - **Multi-tenancy**: Use different owner prefixes for multiple instances
 - **Clean Resource Management**: All resources owned by CRDs are cleaned up on deletion
 
@@ -155,7 +157,11 @@ todolist-operator/
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `owner` | string | Prefix for resource names and USER env var (required) |
+| `owner` | string | Prefix for resource names and `USER` env var (required, immutable) |
+| `frontendReplicas` | integer | Number of replicas for the frontend Deployment (default: 1) |
+| `apiReplicas` | integer | Number of replicas for the API Deployment (default: 1) |
+| `apiBaseUrl` | string | Base path the frontend uses to reach the API service (default: `/todos`); changing this triggers a Vue rollout |
+| `serviceType` | string | Kubernetes Service type for frontend and API (default: `ClusterIP`) |
 
 ### TodoList Status
 

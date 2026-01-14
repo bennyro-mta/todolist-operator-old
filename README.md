@@ -1,75 +1,72 @@
 # TodoList Operator
 
-A Kubernetes operator for managing TodoList applications with a Custom Resource Definition (CRD):
+A Kubernetes operator for managing TodoList applications with a Custom Resource Definition (CRD).
 
-- **TodoList**: Deploys a complete todolist application stack including MariaDB, Todo API, and Vue.js frontend
+## Overview
 
-## Architecture
+The TodoList operator deploys a complete application stack including:
+- **MariaDB**: Database backend
+- **Todo API**: REST API service (`ghcr.io/bennyro-mta/todos-api:1.2`)
+- **TodoList Vue**: Frontend UI (`ghcr.io/bennyro-mta/todolist-vue:1.2`)
 
-The operator manages the following components:
+### Key Features
 
-### TodoList CRD
-- Creates a complete todolist application stack
-- Components:
-  - **MariaDB**: Database backend
-  - **Todo API**: REST API service (`ghcr.io/bennyro-mta/todos-api:1.2`)
-  - **TodoList Vue**: Frontend UI (`ghcr.io/bennyro-mta/todolist-vue:1.2`)
-- Uses `owner` field as prefix for all resource names
-- Sets `USER` environment variable in frontend to the owner value (immutable after initial deployment)
-- Reconciles selected spec changes after deployment (replicas, service type, API base URL)
-- Changing `apiBaseUrl` triggers a rolling restart of the `todolist-vue` Deployment so pods pick up the new `API_BASE_URL`
+- **Automatic Stack Deployment**: Single CRD creates entire application stack
+- **Safe Spec Updates**: Change replicas/service type/API base URL after deployment
+- **Immutable Owner**: `spec.owner` cannot be changed after creation (used as resource name prefix)
+- **Multi-tenancy**: Use different owner prefixes for multiple isolated instances
+- **Clean Resource Management**: All resources are cleaned up on deletion via owner references
 
-## Installation
+## Prerequisites
 
-### Prerequisites
-- Kubernetes cluster (v1.28+)
+- Kubernetes cluster (v1.28+) - minikube, kind, or any k8s cluster
 - kubectl configured to access your cluster
 - Docker (for building the operator image)
+- Go 1.21+ (for local development)
 
-### Deploy the Operator
+## Quick Start
 
-1. **Apply the CRDs**:
+### 1. Install the CRDs
+
 ```bash
 kubectl apply -f manifests/todolist-crd.yaml
+# Or using make:
+make install
 ```
 
-2. **Create the operator namespace and RBAC**:
+### 2. Run the Operator
+
+**Option A: Run Locally (Development)**
 ```bash
-kubectl apply -f manifests/operator.yaml
-kubectl apply -f manifests/rbac.yaml
+make deps
+make run
+# Or directly: go run main.go
 ```
 
-3. **Build and push the operator image** (optional - if using your own registry):
+**Option B: Deploy to Cluster (Production)**
 ```bash
-# Build the image
-docker build -t todolist-operator:latest .
+# Build and push Docker image to your registry
+make docker-build IMG=ghcr.io/bennyro-mta/todolist-operator:1.0
+make docker-push IMG=ghcr.io/bennyro-mta/todolist-operator:1.0
 
-# Tag for your registry
-docker tag todolist-operator:latest your-registry/todolist-operator:latest
+# Update manifests/operator.yaml if using a different image/tag
 
-# Push to your registry
-docker push your-registry/todolist-operator:latest
+# Deploy operator
+make deploy
+# Or: kubectl apply -f manifests/operator.yaml
 
-# Update the image in manifests/operator.yaml
-```
-
-4. **Deploy the operator**:
-```bash
-kubectl apply -f manifests/operator.yaml
-```
-
-5. **Verify the operator is running**:
-```bash
+# Verify operator is running
 kubectl get pods -n todolist-operator-system
 ```
 
-## Usage
+### 3. Create a TodoList Instance
 
-### Create a TodoList Instance
+```bash
+# Using the sample
+kubectl apply -f manifests/samples/todolist-sample.yaml
 
-Create a file `my-todolist.yaml`:
-
-```yaml
+# Or create your own
+cat <<EOF | kubectl apply -f -
 apiVersion: todolist.example.com/v1
 kind: TodoList
 metadata:
@@ -77,79 +74,91 @@ metadata:
   namespace: default
 spec:
   owner: john
+EOF
 ```
 
-Apply it:
-```bash
-kubectl apply -f my-todolist.yaml
-```
-
-This will create:
+This creates:
 - `john-mariadb` - MariaDB deployment and service
 - `john-todo-api` - Todo API deployment and service
 - `john-todolist-vue` - Frontend deployment and service
 - Associated ConfigMaps and Secrets
 
-Check the status:
+### 4. Verify Resources
+
 ```bash
 kubectl get todolists
 kubectl get deployments -l owner=john
 kubectl get services -l owner=john
+kubectl get pods -l owner=john
 ```
 
-## Development
+## Accessing the Application
 
-### Build the Operator
+### Port Forward to Frontend
 
 ```bash
-# Download dependencies
-go mod download
-go mod tidy
-
-# Build locally
-go build -o manager main.go
-
-# Run locally (requires kubeconfig)
-./manager
+kubectl port-forward deployment/john-todolist-vue 8080:8080
+# Open browser to http://localhost:8080
 ```
 
-### Testing
+### Port Forward to API
 
 ```bash
-# Install CRDs
-kubectl apply -f manifests/todolist-crd.yaml
-
-# Run the operator locally
-go run main.go
+kubectl port-forward deployment/john-todo-api 8081:8080
+curl http://localhost:8081/todos
 ```
 
-## Project Structure
+## Updating Configuration
 
-```
-todolist-operator/
-├── api/
-│   └── v1/
-│       ├── groupversion_info.go    # API group and version
-│       └── todolist_types.go       # TodoList CRD types
-├── controllers/
-│   └── todolist_controller.go      # TodoList reconciler
-├── manifests/
-│   ├── todolist-crd.yaml           # TodoList CRD definition
-│   ├── rbac.yaml                   # RBAC configuration
-│   └── operator.yaml               # Operator deployment
-├── Dockerfile                      # Container image definition
-├── go.mod                          # Go module definition
-├── main.go                         # Operator entry point
-└── README.md                       # This file
+### Change `apiBaseUrl` (triggers Vue restart)
+
+The frontend reads `API_BASE_URL` from a ConfigMap via `envFrom`. When you update `spec.apiBaseUrl`, the operator triggers a rolling restart:
+
+```bash
+kubectl patch todolist my-todolist --type merge -p '{"spec": {"apiBaseUrl": "/api/todos"}}'
+kubectl rollout status deployment/john-todolist-vue
 ```
 
-## Features
+## Cleanup
 
-- **Automatic Stack Deployment**: Single CRD creates entire application stack
-- **Safe Spec Updates**: Change replicas/service type/API base URL after deployment
-- **Immutable Owner**: `spec.owner` cannot be changed after creation
-- **Multi-tenancy**: Use different owner prefixes for multiple instances
-- **Clean Resource Management**: All resources owned by CRDs are cleaned up on deletion
+```bash
+# Delete a TodoList (cascades to all owned resources)
+kubectl delete todolist my-todolist
+
+# Undeploy operator
+make undeploy
+
+# Uninstall CRDs
+make uninstall
+```
+
+## Troubleshooting
+
+### Check Operator Logs
+
+```bash
+# If deployed to cluster
+kubectl logs -n todolist-operator-system deployment/todolist-operator
+
+# If running locally, check terminal output
+```
+
+### Check TodoList Status
+
+```bash
+kubectl describe todolist my-todolist
+kubectl get pods -l owner=john
+kubectl logs deployment/john-todo-api
+kubectl logs deployment/john-mariadb
+kubectl logs deployment/john-todolist-vue
+```
+
+### Common Issues
+
+| Problem | Solution |
+|---------|----------|
+| TodoList stays in "Pending" phase | Check operator logs, verify images are accessible |
+| Resources not created | Verify CRDs are installed, check RBAC permissions |
 
 ## API Reference
 
@@ -172,12 +181,26 @@ todolist-operator/
 | `todoApiReady` | boolean | Todo API deployment status |
 | `frontendReady` | boolean | Frontend deployment status |
 
+## Project Structure
+
+```
+todolist-operator/
+├── api/v1/
+│   ├── groupversion_info.go    # API group and version
+│   └── todolist_types.go       # TodoList CRD types
+├── controllers/
+│   └── todolist_controller.go  # TodoList reconciler
+├── manifests/
+│   ├── todolist-crd.yaml       # TodoList CRD definition
+│   ├── operator.yaml           # Operator deployment
+│   └── samples/                # Sample TodoList resources
+├── Dockerfile
+├── go.mod
+├── main.go
+├── Makefile
+└── README.md
+```
+
 ## License
 
-This project follows the same license as the todolist application.
-
-## Notes
-
-- The operator uses controller-runtime framework without operator-sdk
-- Resources are created with owner references for automatic cleanup
-- TodoList deployments use images from ghcr.io/bennyro-mta
+[MIT License](./LICENSE)

@@ -53,11 +53,9 @@ uninstall:
 # Deploy operator to the cluster
 deploy: install
 	kubectl apply -f manifests/operator.yaml
-	kubectl apply -f manifests/rbac.yaml
 
 # Undeploy operator from the cluster
 undeploy:
-	kubectl delete -f manifests/rbac.yaml
 	kubectl delete -f manifests/operator.yaml
 
 # Run the operator locally
